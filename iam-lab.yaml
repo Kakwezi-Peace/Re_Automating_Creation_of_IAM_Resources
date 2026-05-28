@@ -215,21 +215,21 @@ Resources:
   #    No extra policies attached directly to this user
 
 
-  S3User:
-    Type: AWS::IAM::User
-    DependsOn: IAMTemporaryPassword
-    Properties:
-      UserName: !Ref S3UserName
-      Groups:
-        - !Ref S3UserGroup
-      LoginProfile:
-        Password: !Sub '{{resolve:secretsmanager:${IAMTemporaryPassword}:SecretString:password}}'
-        PasswordResetRequired: true
-      Tags:
-        - Key: Lab
-          Value: IAM-Automation
-        - Key: Group
-          Value: S3Group
+#  S3User:
+#    Type: AWS::IAM::User
+#    DependsOn: IAMTemporaryPassword
+#    Properties:
+#      UserName: !Ref S3UserName
+#      Groups:
+#        - !Ref S3UserGroup
+#      LoginProfile:
+#        Password: !Sub '{{resolve:secretsmanager:${IAMTemporaryPassword}:SecretString:password}}'
+#        PasswordResetRequired: true
+#      Tags:
+#        - Key: Lab
+#          Value: IAM-Automation
+#        - Key: Group
+#          Value: S3Group
 
 
 
