@@ -2,63 +2,63 @@ AWSTemplateFormatVersion: '2010-09-09'
 Description: >
   IAM Automation Lab - Creates IAM Users, Groups, Policies, and a shared
   temporary password stored in Secrets Manager. Designed for GitSync deployment.
-
---------------------------------------
+  
+  
 Parameters:
 
   PasswordLength:
     Type: Number
     Default: 16
     Description: Length of the auto-generated temporary password
---------------------------------------------------------------
-  SecretName:
-    Type: String
-    Default: iam-lab/temporary-password
-    Description: Name of the Secrets Manager secret
---------------------------------------------------
-  S3PolicyName:
-    Type: String
-    Default: iam-lab-s3-group-policy
-    Description: Name of the managed policy for S3 users
 
-  EC2PolicyName:
-    Type: String
-    Default: iam-lab-ec2-group-policy
-    Description: Name of the managed policy for EC2 users
-    -----------------------------------
+SecretName:
+  Type: String
+  Default: iam-lab/temporary-password
+  Description: Name of the Secrets Manager secret
 
-  S3GroupName:
-    Type: String
-    Default: iam-lab-s3-group
-    Description: Name of the IAM group for S3 users
+S3PolicyName:
+  Type: String
+  Default: iam-lab-s3-group-policy
+  Description: Name of the managed policy for S3 users
 
-  EC2GroupName:
-    Type: String
-    Default: iam-lab-ec2-group
-    Description: Name of the IAM group for EC2 users
-    ------------------------------------------
+EC2PolicyName:
+  Type: String
+  Default: iam-lab-ec2-group-policy
+  Description: Name of the managed policy for EC2 users
 
-  S3UserName:
-    Type: String
-    Default: s3-user
-    Description: IAM username for the S3 user
 
-  EC2User1Name:
-    Type: String
-    Default: ec2-user1
-    Description: IAM username for ec2-user1
+S3GroupName:
+  Type: String
+  Default: iam-lab-s3-group
+  Description: Name of the IAM group for S3 users
 
-  EC2User2Name:
-    Type: String
-    Default: ec2-user2
-    Description: IAM username for ec2-user2 (has permission boundary)
-    --------------------------------------------
+EC2GroupName:
+  Type: String
+  Default: iam-lab-ec2-group
+  Description: Name of the IAM group for EC2 users
 
-  EC2User2BoundaryPolicyName:
-    Type: String
-    Default: iam-lab-ec2-user2-boundary
-    Description: Name of the permission boundary for ec2-user2
---------------------------------------------------------------------
+
+S3UserName:
+  Type: String
+  Default: s3-user
+  Description: IAM username for the S3 user
+
+EC2User1Name:
+  Type: String
+  Default: ec2-user1
+  Description: IAM username for ec2-user1
+
+EC2User2Name:
+  Type: String
+  Default: ec2-user2
+  Description: IAM username for ec2-user2 (has permission boundary)
+
+
+EC2User2BoundaryPolicyName:
+  Type: String
+  Default: iam-lab-ec2-user2-boundary
+  Description: Name of the permission boundary for ec2-user2
+
 
 Resources:
 
@@ -81,175 +81,175 @@ Resources:
         - Key: Lab
           Value: IAM-Automation
 
-----------------------------------------------
-
-  # 2. S3 GROUP POLICY
-  #    Allows listing S3 buckets only
 
 
-  S3GroupPolicy:
-    Type: AWS::IAM::ManagedPolicy
-    Properties:
-      ManagedPolicyName: !Ref S3PolicyName
-      Description: Allows users to list S3 buckets and get bucket location
-      PolicyDocument:
-        Version: '2012-10-17'
-        Statement:
-          - Sid: AllowListS3Buckets
-            Effect: Allow
-            Action:
-              - s3:ListAllMyBuckets
-              - s3:GetBucketLocation
-              - s3:ListBucket
-            Resource: '*'
+# 2. S3 GROUP POLICY
+#    Allows listing S3 buckets only
 
 
-
-  -----------------------------------------------------
-
-
-  S3UserGroup:
-    Type: AWS::IAM::Group
-    Properties:
-      GroupName: !Ref S3GroupName
-      ManagedPolicyArns:
-        - !Ref S3GroupPolicy
-        - arn:aws:iam::aws:policy/IAMUserChangePassword
+S3GroupPolicy:
+  Type: AWS::IAM::ManagedPolicy
+  Properties:
+    ManagedPolicyName: !Ref S3PolicyName
+    Description: Allows users to list S3 buckets and get bucket location
+    PolicyDocument:
+      Version: '2012-10-17'
+      Statement:
+        - Sid: AllowListS3Buckets
+          Effect: Allow
+          Action:
+            - s3:ListAllMyBuckets
+            - s3:GetBucketLocation
+            - s3:ListBucket
+          Resource: '*'
 
 
 
------------------------------------------------------------------
-
-
-  EC2GroupPolicy:
-    Type: AWS::IAM::ManagedPolicy
-    Properties:
-      ManagedPolicyName: !Ref EC2PolicyName
-      Description: Allows users to list and create EC2 instances
-      PolicyDocument:
-        Version: '2012-10-17'
-        Statement:
-          - Sid: AllowEC2Access
-            Effect: Allow
-            Action:
-              - ec2:DescribeInstances
-              - ec2:DescribeInstanceTypes
-              - ec2:DescribeInstanceStatus
-              - ec2:DescribeRegions
-              - ec2:DescribeAvailabilityZones
-              - ec2:RunInstances
-              - ec2:CreateTags
-              - ec2:DescribeKeyPairs
-              - ec2:DescribeSecurityGroups
-              - ec2:DescribeSubnets
-              - ec2:DescribeVpcs
-              - ec2:DescribeImages
-            Resource: '*'
-
-
-----------------------------------------------------
-
-
-  EC2UserGroup:
-    Type: AWS::IAM::Group
-    Properties:
-      GroupName: !Ref EC2GroupName
-      ManagedPolicyArns:
-        - !Ref EC2GroupPolicy
-        - arn:aws:iam::aws:policy/IAMUserChangePassword
-
---------------------------------------------------
-
-
-  EC2User2PermissionBoundary:
-    Type: AWS::IAM::ManagedPolicy
-    Properties:
-      ManagedPolicyName: !Ref EC2User2BoundaryPolicyName
-      Description: Permission boundary for ec2-user2 - blocks RunInstances
-      PolicyDocument:
-        Version: '2012-10-17'
-        Statement:
-          - Sid: AllowDescribeOnly
-            Effect: Allow
-            Action:
-              - ec2:DescribeInstances
-              - ec2:DescribeInstanceTypes
-              - ec2:DescribeInstanceStatus
-              - ec2:DescribeRegions
-              - ec2:DescribeAvailabilityZones
-              - ec2:DescribeKeyPairs
-              - ec2:DescribeSecurityGroups
-              - ec2:DescribeSubnets
-              - ec2:DescribeVpcs
-              - ec2:DescribeImages
-              - ec2:CreateTags
-              
-            Resource: '*'
-          - Sid: AllowPasswordChange
-            Effect: Allow
-            Action:
-              - iam:ChangePassword
-              - iam:GetAccountPasswordPolicy
-            Resource: '*'
 
 
 
----------------------------------------------------
+S3UserGroup:
+  Type: AWS::IAM::Group
+  Properties:
+    GroupName: !Ref S3GroupName
+    ManagedPolicyArns:
+      - !Ref S3GroupPolicy
+      - arn:aws:iam::aws:policy/IAMUserChangePassword
 
 
-  S3User:
-    Type: AWS::IAM::User
-    DependsOn: IAMTemporaryPassword
-    Properties:
-      UserName: !Ref S3UserName
-      Groups:
-        - !Ref S3UserGroup
-      LoginProfile:
-        Password: !Sub '{{resolve:secretsmanager:${IAMTemporaryPassword}:SecretString:password}}'
-        PasswordResetRequired: true
-      Tags:
-        - Key: Lab
-          Value: IAM-Automation
-        - Key: Group
-          Value: S3Group
-
-------------------------------------------------
-
-  EC2User1:
-    Type: AWS::IAM::User
-    DependsOn: IAMTemporaryPassword
-    Properties:
-      UserName: !Ref EC2User1Name
-      Groups:
-        - !Ref EC2UserGroup
-      LoginProfile:
-        Password: !Sub '{{resolve:secretsmanager:${IAMTemporaryPassword}:SecretString:password}}'
-        PasswordResetRequired: true
-      Tags:
-        - Key: Lab
-          Value: IAM-Automation
-        - Key: Group
-          Value: EC2Group
-
-----------------------------------------------------
 
 
-  EC2User2:
-    Type: AWS::IAM::User
-    DependsOn: IAMTemporaryPassword
-    Properties:
-      UserName: !Ref EC2User2Name
-      Groups:
-        - !Ref EC2UserGroup
-      PermissionsBoundary: !Ref EC2User2PermissionBoundary
-      LoginProfile:
-        Password: !Sub '{{resolve:secretsmanager:${IAMTemporaryPassword}:SecretString:password}}'
-        PasswordResetRequired: true
-      Tags:
-        - Key: Lab
-          Value: IAM-Automation
-        - Key: Group
-          Value: EC2Group
+
+
+EC2GroupPolicy:
+  Type: AWS::IAM::ManagedPolicy
+  Properties:
+    ManagedPolicyName: !Ref EC2PolicyName
+    Description: Allows users to list and create EC2 instances
+    PolicyDocument:
+      Version: '2012-10-17'
+      Statement:
+        - Sid: AllowEC2Access
+          Effect: Allow
+          Action:
+            - ec2:DescribeInstances
+            - ec2:DescribeInstanceTypes
+            - ec2:DescribeInstanceStatus
+            - ec2:DescribeRegions
+            - ec2:DescribeAvailabilityZones
+            - ec2:RunInstances
+            - ec2:CreateTags
+            - ec2:DescribeKeyPairs
+            - ec2:DescribeSecurityGroups
+            - ec2:DescribeSubnets
+            - ec2:DescribeVpcs
+            - ec2:DescribeImages
+          Resource: '*'
+
+
+
+
+
+EC2UserGroup:
+  Type: AWS::IAM::Group
+  Properties:
+    GroupName: !Ref EC2GroupName
+    ManagedPolicyArns:
+      - !Ref EC2GroupPolicy
+      - arn:aws:iam::aws:policy/IAMUserChangePassword
+
+
+
+
+EC2User2PermissionBoundary:
+  Type: AWS::IAM::ManagedPolicy
+  Properties:
+    ManagedPolicyName: !Ref EC2User2BoundaryPolicyName
+    Description: Permission boundary for ec2-user2 - blocks RunInstances
+    PolicyDocument:
+      Version: '2012-10-17'
+      Statement:
+        - Sid: AllowDescribeOnly
+          Effect: Allow
+          Action:
+            - ec2:DescribeInstances
+            - ec2:DescribeInstanceTypes
+            - ec2:DescribeInstanceStatus
+            - ec2:DescribeRegions
+            - ec2:DescribeAvailabilityZones
+            - ec2:DescribeKeyPairs
+            - ec2:DescribeSecurityGroups
+            - ec2:DescribeSubnets
+            - ec2:DescribeVpcs
+            - ec2:DescribeImages
+            - ec2:CreateTags
+
+          Resource: '*'
+        - Sid: AllowPasswordChange
+          Effect: Allow
+          Action:
+            - iam:ChangePassword
+            - iam:GetAccountPasswordPolicy
+          Resource: '*'
+
+
+
+
+
+
+S3User:
+  Type: AWS::IAM::User
+  DependsOn: IAMTemporaryPassword
+  Properties:
+    UserName: !Ref S3UserName
+    Groups:
+      - !Ref S3UserGroup
+    LoginProfile:
+      Password: !Sub '{{resolve:secretsmanager:${IAMTemporaryPassword}:SecretString:password}}'
+      PasswordResetRequired: true
+    Tags:
+      - Key: Lab
+        Value: IAM-Automation
+      - Key: Group
+        Value: S3Group
+
+
+
+EC2User1:
+  Type: AWS::IAM::User
+  DependsOn: IAMTemporaryPassword
+  Properties:
+    UserName: !Ref EC2User1Name
+    Groups:
+      - !Ref EC2UserGroup
+    LoginProfile:
+      Password: !Sub '{{resolve:secretsmanager:${IAMTemporaryPassword}:SecretString:password}}'
+      PasswordResetRequired: true
+    Tags:
+      - Key: Lab
+        Value: IAM-Automation
+      - Key: Group
+        Value: EC2Group
+
+
+
+
+EC2User2:
+  Type: AWS::IAM::User
+  DependsOn: IAMTemporaryPassword
+  Properties:
+    UserName: !Ref EC2User2Name
+    Groups:
+      - !Ref EC2UserGroup
+    PermissionsBoundary: !Ref EC2User2PermissionBoundary
+    LoginProfile:
+      Password: !Sub '{{resolve:secretsmanager:${IAMTemporaryPassword}:SecretString:password}}'
+      PasswordResetRequired: true
+    Tags:
+      - Key: Lab
+        Value: IAM-Automation
+      - Key: Group
+        Value: EC2Group
 
 
 Outputs:
