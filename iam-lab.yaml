@@ -2,7 +2,7 @@ AWSTemplateFormatVersion: '2010-09-09'
 Description: >
   IAM Automation Lab - Creates IAM Users, Groups, Policies, and a shared
   temporary password stored in Secrets Manager. Designed for GitSync deployment.
-  
+
 
 Parameters:
 
@@ -105,6 +105,9 @@ S3GroupPolicy:
 
 
 
+
+
+
 S3UserGroup:
   Type: AWS::IAM::Group
   Properties:
@@ -194,21 +197,21 @@ EC2User2PermissionBoundary:
 
 
 
-S3User:
-  Type: AWS::IAM::User
-  DependsOn: IAMTemporaryPassword
-  Properties:
-    UserName: !Ref S3UserName
-    Groups:
-      - !Ref S3UserGroup
-    LoginProfile:
-      Password: !Sub '{{resolve:secretsmanager:${IAMTemporaryPassword}:SecretString:password}}'
-      PasswordResetRequired: true
-    Tags:
-      - Key: Lab
-        Value: IAM-Automation
-      - Key: Group
-        Value: S3Group
+#S3User:
+#  Type: AWS::IAM::User
+#  DependsOn: IAMTemporaryPassword
+#  Properties:
+#    UserName: !Ref S3UserName
+#    Groups:
+#      - !Ref S3UserGroup
+#    LoginProfile:
+#      Password: !Sub '{{resolve:secretsmanager:${IAMTemporaryPassword}:SecretString:password}}'
+#      PasswordResetRequired: true
+#    Tags:
+#      - Key: Lab
+#        Value: IAM-Automation
+#      - Key: Group
+#        Value: S3Group
 
 
 
