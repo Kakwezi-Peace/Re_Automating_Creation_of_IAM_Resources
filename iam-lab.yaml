@@ -38,10 +38,10 @@ EC2GroupName:
   Description: Name of the IAM group for EC2 users
 
 
-S3UserName:
-  Type: String
-  Default: s3-user
-  Description: IAM username for the S3 user
+# S3UserName:
+#   Type: String
+#   Default: s3-user
+#   Description: IAM username for the S3 user
 
 EC2User1Name:
   Type: String
