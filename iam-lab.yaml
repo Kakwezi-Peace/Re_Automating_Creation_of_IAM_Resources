@@ -2,8 +2,8 @@ AWSTemplateFormatVersion: '2010-09-09'
 Description: >
   IAM Automation Lab - Creates IAM Users, Groups, Policies, and a shared
   temporary password stored in Secrets Manager. Designed for GitSync deployment.
-
-
+  
+  
 Parameters:
 
   PasswordLength:
